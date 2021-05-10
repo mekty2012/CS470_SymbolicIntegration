@@ -11,12 +11,19 @@ unary_op_types = (sympy.core.add.Add, sympy.core.mul.Mul, sympy.exp, sympy.log, 
                   sympy.asinh, sympy.acosh, sympy.atanh)
 
 def generate_terminal():
+  """
+  Generates terminal node. 
+  With 50%, returns x. Otherwise returns constant among -5~5, except 0.
+  """
   if random.random() > 0.5:
     return x
   else:
     return sympy.Integer(random.choice(constants))
 
 def generate_unary_tree(op_str, child):
+  """
+  Given operator string and single child, creates tree. 
+  """
   if op_str == "exp":
     return sympy.exp(child)
   elif op_str == "log":
@@ -51,6 +58,9 @@ def generate_unary_tree(op_str, child):
     raise ValueError("Unknown operator {}".format(op_str))
 
 def generate_binary_tree(op_str, first_child, second_child):
+  """
+  Given operator string and two child, creates tree.
+  """
   if op_str == "+":
     return first_child + second_child
   elif op_str == "-":
@@ -63,6 +73,10 @@ def generate_binary_tree(op_str, first_child, second_child):
     raise ValueError("Unknown opeartor {}".format(op_str))
 
 def full_init(depth):
+  """
+  Full initialization.
+  Given depth N, returns a tree with every terminal node has given depth. 
+  """
   if depth == 1:
     return generate_terminal()
   else:
@@ -77,10 +91,15 @@ def full_init(depth):
       return generate_unary_tree(op, child)
 
 def grow_init(depth, prob):
+  """
+  Grow initialization. 
+  Given depth and probability, grow the tree.
+  At each internal node, with given probability, we instead generate terminal node.
+  """
   if depth == 1:
     return generate_terminal()
   else:
-    if random.random() > prob:
+    if random.random() < prob:
       return generate_terminal()
     else:
       if random.random() > 0.5:
@@ -93,22 +112,13 @@ def grow_init(depth, prob):
         child = grow_init(depth - 1, prob)
         return generate_unary_tree(op, child)
 
-def is_safe_op(formula):
-  return isinstance(formula, unary_op_types)
-
-def is_integral_valid(formula):
-  if isinstance(formula, sympy.integrals.integrals.Integral):
-    return False
-  else:
-    if not is_safe_op(formula):
-      return False
-    else:
-      for arg in formula.args:
-        if not is_integral_valid(arg):
-          return False
-      return True
-
 def fixed_init(n):
+  """
+  Creates tree having internal nodes of given number.
+
+  Internally, it randomly splits remaining number of nodes to half if we have binary operation,
+  otherwise subtract one.
+  """
   if n == 0:
     return generate_terminal()
   else:
@@ -123,6 +133,29 @@ def fixed_init(n):
       op = random.choice(unary_ops)
       child = fixed_init(n - 1)
       return generate_unary_tree(op, child)
+
+def is_safe_op(formula):
+  """
+  This is helper function for deciding whether given formulas root has safe operator.
+  If it is not valid, it means we can't encode given formula in network.
+  """
+  return isinstance(formula, unary_op_types)
+
+def is_integral_valid(formula):
+  """
+  Recursively iterates given formula, and check if it is valid integration formula.
+  """
+  if isinstance(formula, sympy.integrals.integrals.Integral):
+    return False
+  else:
+    if not is_safe_op(formula):
+      return False
+    else:
+      for arg in formula.args:
+        if not is_integral_valid(arg):
+          return False
+      return True
+
 
 if __name__ == "__main__":
   for i in range(10):
