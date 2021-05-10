@@ -108,6 +108,22 @@ def is_integral_valid(formula):
           return False
       return True
 
+def fixed_init(n):
+  if n == 0:
+    return generate_terminal()
+  else:
+    if random.random() > 0.5:
+      op = random.choice(bianry_ops)
+      left_n = random.randint(n - 1)
+      right_n = n - 1 - left_n
+      left_tree = fixed_init(left_n)
+      right_tree = fixed_init(right_n)
+      return generate_binary_tree(op, left_tree, right_tree)
+    else:
+      op = random.choice(unary_ops)
+      child = fixed_init(n - 1)
+      return generate_unary_tree(op, child)
+
 if __name__ == "__main__":
   for i in range(10):
     form = full_init(7)
