@@ -1,4 +1,4 @@
-# CS470-Symbolic-Integration
+# CS470 Symbolic Integration
 
 Team 5: TaeYoung Kim and Janggun Lee
 
