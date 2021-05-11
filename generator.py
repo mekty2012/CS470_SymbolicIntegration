@@ -2,6 +2,13 @@ import symbolic
 import sympy
 
 def generate_forward():
+  """
+  Generate dataset with forward method
+
+  It tries to integrate random function.
+  The integral may not be symbolically possible, or may contains invalid operators.
+  In those cases, it returns None.
+  """
   formula = symbolic.fixed_init(15)
   integrated = sympy.integrate(formula, symbolic.x, meijerg=False)
   if symbolic.is_integral_valid(integrated):
@@ -10,11 +17,23 @@ def generate_forward():
     return None
 
 def generate_backward():
+  """
+  Generate dataset with backward method
+
+  It differentiate random function.
+  """
   formula = symbolic.fixed_init(15)
   differentiated = formula.diff(symbolic.x)
   return (differentiated, formula)
 
 def generate_part(dataset):
+  """
+  Use integration by parts formula
+
+  Given F, G, and their derivative f, g, we have
+  \int fG = FG - \int Fg
+  So if we knows \int fG or \int Fg, we have the other one.
+  """
   first = symbolic.fixed_init(15)
   second = symbolic.fixed_init(15)
   first_d = first.diff(symbolic.x)
