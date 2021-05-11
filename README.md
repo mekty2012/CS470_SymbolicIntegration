@@ -1,6 +1,8 @@
-# CS470_SymbolicIntegration
+# CS470-Symbolic-Integration
 
-<https://arxiv.org/abs/1912.01412>
+Team 5: TaeYoung Kim and Janggun Lee
+
+Target paper: [Deep Learning for Symbolic Mathematics](https://arxiv.org/abs/1912.01412)
 
 Our target : Symbolic Integration
 
