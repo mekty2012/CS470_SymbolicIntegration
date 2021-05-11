@@ -6,7 +6,7 @@ x = sympy.symbols('x')
 constants = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 binary_ops = ["+", "-", "*", "/"]
 unary_ops = ["exp", "log", "sqrt", "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh", "arcsinh", "arccosh", "arctanh"]
-unary_op_types = (sympy.core.add.Add, sympy.core.mul.Mul, sympy.exp, sympy.log, sympy.core.power.Pow,
+op_types = (sympy.core.add.Add, sympy.core.mul.Mul, sympy.exp, sympy.log, sympy.core.power.Pow,
                   sympy.sin, sympy.cos, sympy.tan, sympy.sinh, sympy.cosh, sympy.tanh, sympy.asin, sympy.acos, sympy.atan, 
                   sympy.asinh, sympy.acosh, sympy.atanh)
 
@@ -139,7 +139,7 @@ def is_safe_op(formula):
   This is helper function for deciding whether given formulas root has safe operator.
   If it is not valid, it means we can't encode given formula in network.
   """
-  return isinstance(formula, unary_op_types)
+  return isinstance(formula, op_types)
 
 def is_integral_valid(formula):
   """
