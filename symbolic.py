@@ -5,8 +5,9 @@ x = sympy.symbols('x')
 
 constants = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 binary_ops = ["+", "-", "*", "/"]
-unary_ops = ["exp", "log", "sqrt", "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh", "arcsinh", "arccosh", "arctanh"]
-op_types = (sympy.core.add.Add, sympy.core.mul.Mul, sympy.exp, sympy.log, sympy.core.power.Pow,
+unary_ops = ["exp", "log", "sqrt", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh"]
+op_mult_types = (sympy.core.add.Add, sympy.core.mul.Mul)
+op_types = (sympy.exp, sympy.log, sympy.core.power.Pow,
                   sympy.sin, sympy.cos, sympy.tan, sympy.sinh, sympy.cosh, sympy.tanh, sympy.asin, sympy.acos, sympy.atan, 
                   sympy.asinh, sympy.acosh, sympy.atanh)
 
@@ -36,11 +37,11 @@ def generate_unary_tree(op_str, child):
     return sympy.cos(child)
   elif op_str == "tan":
     return sympy.tan(child)
-  elif op_str == "arcsin":
+  elif op_str == "asin":
     return sympy.asin(child)
-  elif op_str == "arccos":
+  elif op_str == "acos":
     return sympy.acos(child)
-  elif op_str == "arctan":
+  elif op_str == "atan":
     return sympy.atan(child)
   elif op_str == "sinh":
     return sympy.sinh(child)
@@ -48,11 +49,11 @@ def generate_unary_tree(op_str, child):
     return sympy.cosh(child)
   elif op_str == "tanh":
     return sympy.tanh(child)
-  elif op_str == "arcsinh":
+  elif op_str == "asinh":
     return sympy.asinh(child)
-  elif op_str == "arccosh":
+  elif op_str == "acosh":
     return sympy.acosh(child)
-  elif op_str == "arctanh":
+  elif op_str == "atanh":
     return sympy.atanh(child)
   else:
     raise ValueError("Unknown operator {}".format(op_str))
@@ -69,6 +70,8 @@ def generate_binary_tree(op_str, first_child, second_child):
     return first_child * second_child
   elif op_str == "/":
     return first_child / second_child
+  elif op_str == "**":
+    return first_child ** second_child
   else:
     raise ValueError("Unknown opeartor {}".format(op_str))
 
@@ -123,8 +126,8 @@ def fixed_init(n):
     return generate_terminal()
   else:
     if random.random() > 0.5:
-      op = random.choice(bianry_ops)
-      left_n = random.randint(n - 1)
+      op = random.choice(binary_ops)
+      left_n = random.randint(0, n - 1)
       right_n = n - 1 - left_n
       left_tree = fixed_init(left_n)
       right_tree = fixed_init(right_n)
