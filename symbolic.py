@@ -10,6 +10,7 @@ op_mult_types = (sympy.core.add.Add, sympy.core.mul.Mul)
 op_types = (sympy.exp, sympy.log, sympy.core.power.Pow,
                   sympy.sin, sympy.cos, sympy.tan, sympy.sinh, sympy.cosh, sympy.tanh, sympy.asin, sympy.acos, sympy.atan, 
                   sympy.asinh, sympy.acosh, sympy.atanh)
+ops = constants + binary_ops + unary_ops
 
 def generate_terminal():
   """

@@ -26,7 +26,7 @@ type_str_dict = {
   sympy.atanh : "atanh"
 }
 
-def tree_to_list(formula):
+def formula_to_tree(formula):
   if isinstance(formula, sympy.core.numbers.Integer):
     return [str(formula)]
   elif isinstance(formula, sympy.core.numbers.Rational):
@@ -40,33 +40,95 @@ def tree_to_list(formula):
   elif isinstance(formula, sympy.core.symbol.Symbol):
     return [str(formula)]
   elif isinstance(formula, symbolic.op_mult_types):
-    res = []
+    op = type_str_dict[type(formula)]
+    res = [op, None, None]
+    temp = res
     for i in range(len(formula.args)):
-      res.append(type_str_dict[type(formula)])
-      res = res + tree_to_list(formula.args[i])
-    res = res + tree_to_list(formula.args[-1])
+      temp[1] = formula_to_tree(formula.arg[i])
+      temp[2] = [op, None, None]
+    temp[2] = formula_to_tree(formula.args[-1])
     return res
   elif isinstance(formula, symbolic.op_types):
     curr = [type_str_dict[type(formula)]]
     for arg in formula.args:
-      curr = curr + tree_to_list(arg)
+      curr = curr + formula_to_tree(arg)
     return curr
   else:
     raise ValueError("This function expects valid formula but is type {}".format(type(formula)))
 
-def list_to_tree(words):
-  first = words[0]
-  if first == "x":
-    return symbolic.x, words[1:]
-  #elif first in int_set:
-  elif int_regex.match(first):
-    return int(first), words[1:]
-  elif first in symbolic.unary_ops:
-    child, rest = list_to_tree(words[1:])
-    return symbolic.generate_unary_tree(first, child), rest
-  elif first in symbolic.binary_ops or first == "**":
-    child1, rest1 = list_to_tree(words[1:])
-    child2, rest2 = list_to_tree(rest1)
-    return symbolic.generate_binary_tree(first, child1, child2), rest2
+def tree_preorder(tree):
+  if len(tree) == 1:
+    return [tree[0]]
+  elif len(tree) == 2:
+    return [tree[0]] + tree_preorder(tree[1])
+  elif len(tree) == 3:
+    return [tree[0]] + tree_preorder(tree[1]) + tree_preorder(tree[2])
   else:
-    raise ValueError("This function expects valid formula but first is {}".format(first))
+    raise ValueError("All trees are at most binary, but it has {} childs".format(len(tree) - 1))
+
+def tree_depth(tree):
+  if len(tree) == 1:
+    return 1
+  elif len(tree) == 2:
+    return tree_depth(tree[1]) + 1
+  elif len(tree) == 3:
+    return max(tree_depth(tree[1]), tree_depth(tree[2])) + 1
+  else:
+    raise ValueError("All trees are at most binary, but it has {} childs".format(len(tree) - 1))
+
+def empty_tree(depth):
+  if depth == 1:
+    return [None]
+  else:
+    return [None, empty_tree(depth - 1), empty_tree(depth - 1)]
+
+def tree_full_binary(tree, depth):
+  if depth == 1:
+    if len(tree) == 1:
+      return [tree[0]]
+    else:
+      raise ValueError("Maximum depth expected, but the tree is deeper.")
+  else:
+    if len(tree) == 3:
+      return [tree[0], tree_full_binary(tree[1], depth - 1), tree_full_binary(tree[2], depth - 1)]
+    elif len(tree) == 2:
+      return [tree[0], tree_full_binary(tree[1], depth - 1), empty_tree(depth - 1)]
+    elif len(tree) == 1:
+      return [tree[0], empty_tree(depth - 1), empty_tree(depth - 1)]
+    else:
+      raise ValueError("All trees are at most binary, but it has {} childs".format(len(tree) - 1))
+
+def tree_postorder(tree):
+  if len(tree) == 1:
+    return [tree[0]]
+  elif len(tree) == 3:
+    return tree_postorder(tree[1]) + tree_postorder(tree[2]) + [tree[0]]
+  else:
+    raise ValueError("All trees are complete binary, but it has {} childs".format(len(tree) - 1))
+
+def symb_to_sparse(t):
+  ind = symbolic.ops.index(t)
+  return [1 if i == ind else 0 for i in range(len(symbolic.ops))]
+
+def symb_to_sparse_list(l):
+  return [symb_to_sparse(t) for t in l]
+
+def batch_postorder(trees):
+  max_depth = -1
+  for tree in trees:
+    depth = tree_depth(tree)
+    if depth > max_depth:
+      max_depth = depth
+  
+  filled = [tree_full_binary(tree, max_depth) for tree in trees]
+  postordered = [tree_postorder(tree) for tree in filled]
+  sparsed = [symb_to_sparse_list(traverse) for traverse in postordered]
+  return sparsed
+
+def batch_preorder(trees):
+  preordered = [tree_preorder(tree) for tree in trees]
+  max_length = max(map(len, preordered))
+  for traverse in preordered:
+    traverse.extend([None] * (max_length - len(traverse)))
+  sparsed = [symb_to_sparse_list(traverse) for traverse in preordered]
+  return sparsed
